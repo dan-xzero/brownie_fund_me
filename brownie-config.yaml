@@ -9,6 +9,8 @@ dotenv: .env
 networks:
   development:
     verify: false
+  ganache-local:
+    verify: false
   goerli:
     eth_usd_price_feed: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e'
     verify: true

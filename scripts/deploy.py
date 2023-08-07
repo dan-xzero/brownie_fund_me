@@ -1,5 +1,9 @@
 from brownie import FundMe, MockV3Aggregator, network, config
-from scripts.helpful_scripts import get_account,deploy_mocks 
+from scripts.helpful_scripts import (
+    get_account,
+    deploy_mocks,
+    LOCAL_BLOCKCHAIN_ENVIRONMENTS,
+)
 
 
 def deploy_fund_me():
@@ -7,11 +11,19 @@ def deploy_fund_me():
     # pass the price feed address to our fundme contract
     # if we are on a persistnet network like sepolia use associated address
     # otherwise deploy mocks
-    if network.show_active() != "development":
-        price_feed_address = config["networks"][network.show_active()]["eth_usd_price_feed"]
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        price_feed_address = config["networks"][network.show_active()][
+            "eth_usd_price_feed"
+        ]
     else:
-        deploy_mocks()       
-    fund_me = FundMe.deploy(price_feed_address,{"from": account}, publish_source=config["networks"][network.show_active()].get("verify"))
+        deploy_mocks()
+        price_feed_address = MockV3Aggregator[-1].address
+
+    fund_me = FundMe.deploy(
+        price_feed_address,
+        {"from": account},
+        publish_source=config["networks"][network.show_active()].get("verify"),
+    )
     print(f"contract deployed to {fund_me.address}")
 
 
